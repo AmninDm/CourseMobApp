@@ -1,67 +1,80 @@
 package com.example.coursapp;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
+import com.example.coursapp.model.User;
+import com.example.coursapp.network.request.ApiClient;
+import com.example.coursapp.network.request.SignUpRequest;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import java.util.List;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private TextInputEditText etName, etEmail, etPassword, etPasswordConfirm;
-    private Button btnRegister;
-    private TextView tvToLogin;
+    private TextInputEditText etUsername, etPhone, etPassword, etPasswordConfirm;
+    private MaterialButton btnRegister;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        etName = findViewById(R.id.etName);
-        etEmail = findViewById(R.id.etEmail);
+        etUsername = findViewById(R.id.etUsername);
+        etPhone = findViewById(R.id.etPhone);
         etPassword = findViewById(R.id.etPassword);
         etPasswordConfirm = findViewById(R.id.etPasswordConfirm);
         btnRegister = findViewById(R.id.btnRegister);
-        tvToLogin = findViewById(R.id.tvToLogin);
 
         btnRegister.setOnClickListener(v -> performRegister());
-
-        tvToLogin.setOnClickListener(v -> {
-            finish();
-        });
+        findViewById(R.id.tvToLogin).setOnClickListener(v -> finish());
     }
 
     private void performRegister() {
-        String name = etName.getText().toString().trim();
-        String email = etEmail.getText().toString().trim();
+        String username = etUsername.getText().toString().trim();
+        String phone = etPhone.getText().toString().trim();
         String pass = etPassword.getText().toString();
-        String passConfirm = etPasswordConfirm.getText().toString();
+        String pass2 = etPasswordConfirm.getText().toString();
 
-        if (TextUtils.isEmpty(name)) {
-            etName.setError("Введите имя");
+        if (username.isEmpty() || phone.isEmpty() || pass.isEmpty()) {
+            Toast.makeText(this, "Заполните все поля", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (TextUtils.isEmpty(email)) {
-            etEmail.setError("Введите email");
+        if (!pass.equals(pass2)) {
+            Toast.makeText(this, "Пароли не совпадают", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (pass.length() < 6) {
-            etPassword.setError("Минимум 6 символов");
-            return;
-        }
-        if (!pass.equals(passConfirm)) {
-            etPasswordConfirm.setError("Пароли не совпадают");
+        if (pass.length() < 4) {
+            Toast.makeText(this, "Пароль слишком короткий", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Toast.makeText(this, "Регистрация успешна!\n" + name, Toast.LENGTH_LONG).show();
+        btnRegister.setEnabled(false);
+        btnRegister.setText("Создаём аккаунт...");
 
-        startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-        finish();
+        SignUpRequest request = new SignUpRequest(username, pass, phone);
+        ApiClient.getApi().register(request).enqueue(new Callback<List<User>>() {
+            @Override
+            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    Toast.makeText(RegisterActivity.this, "Аккаунт создан!", Toast.LENGTH_LONG).show();
+                    finish();
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Логин или телефон уже занят", Toast.LENGTH_LONG).show();
+                    btnRegister.setEnabled(true);
+                    btnRegister.setText("Зарегистрироваться");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<User>> call, Throwable t) {
+                Toast.makeText(RegisterActivity.this, "Нет интернета", Toast.LENGTH_SHORT).show();
+                btnRegister.setEnabled(true);
+                btnRegister.setText("Зарегистрироваться");
+            }
+        });
     }
 }
