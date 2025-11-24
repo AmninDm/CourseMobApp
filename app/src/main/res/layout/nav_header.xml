@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="180dp"
-    android:background="#6200EE"
+    android:layout_height="200dp"
+    android:background="@drawable/gradient_primary"
     android:gravity="bottom"
     android:orientation="vertical"
     android:padding="24dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <ImageView
+    <View
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@android:drawable/ic_menu_myplaces"
-        android:contentDescription="Аватар" />
+        android:background="@drawable/gradient_card" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="👤"
+        android:textSize="48sp"
+        android:layout_marginTop="-72dp"
+        android:layout_marginStart="16dp" />
 
     <TextView
         android:id="@+id/tvNavHeaderName"
@@ -20,16 +27,9 @@
         android:layout_height="wrap_content"
         android:paddingTop="16dp"
         android:text="Имя пользователя"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@android:color/white" />
 
-    <TextView
-        android:id="@+id/tvNavHeaderEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Студент"
-        android:textSize="14sp"
-        android:textColor="@android:color/white" />
 
 </LinearLayout>
